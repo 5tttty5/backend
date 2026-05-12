@@ -1,11 +1,25 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const { Pool } = require("pg");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Serve terrain tiles tĩnh
+app.use(
+  "/terrain",
+  express.static(path.join(__dirname, "terrain"), {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".terrain")) {
+        res.setHeader("Content-Type", "application/octet-stream");
+      }
+      res.setHeader("Access-Control-Allow-Origin", "*");
+    },
+  }),
+);
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

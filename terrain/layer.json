@@ -1,0 +1,30 @@
+{
+  "tilejson": "2.1.0",
+  "name": "hanoi",
+  "description": "",
+  "version": "1.1.0",
+  "format": "quantized-mesh-1.0",
+  "attribution": "",
+  "schema": "tms",
+  "extensions": [ "octvertexnormals" ],
+  "tiles": [ "{z}/{x}/{y}.terrain?v={version}" ],
+  "projection": "EPSG:4326",
+  "bounds": [ 0.00, -90.00, 180.00, 90.00 ],
+  "available": [
+    [ { "startX": 0, "startY": 0, "endX": 1, "endY": 0 } ]
+   ,[ { "startX": 3, "startY": 1, "endX": 3, "endY": 1 } ]
+   ,[ { "startX": 6, "startY": 2, "endX": 6, "endY": 2 } ]
+   ,[ { "startX": 12, "startY": 4, "endX": 12, "endY": 4 } ]
+   ,[ { "startX": 25, "startY": 9, "endX": 25, "endY": 9 } ]
+   ,[ { "startX": 50, "startY": 19, "endX": 50, "endY": 19 } ]
+   ,[ { "startX": 101, "startY": 39, "endX": 101, "endY": 39 } ]
+   ,[ { "startX": 203, "startY": 79, "endX": 203, "endY": 79 } ]
+   ,[ { "startX": 406, "startY": 158, "endX": 406, "endY": 158 } ]
+   ,[ { "startX": 812, "startY": 316, "endX": 812, "endY": 317 } ]
+   ,[ { "startX": 1624, "startY": 633, "endX": 1624, "endY": 634 } ]
+   ,[ { "startX": 3249, "startY": 1267, "endX": 3249, "endY": 1268 } ]
+   ,[ { "startX": 6498, "startY": 2535, "endX": 6499, "endY": 2536 } ]
+   ,[ { "startX": 12996, "startY": 5070, "endX": 12999, "endY": 5072 } ]
+   ,[ { "startX": 25993, "startY": 10141, "endX": 25999, "endY": 10145 } ]
+  ]
+}
