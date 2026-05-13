@@ -51,13 +51,21 @@ app.get("/init-db", async (req, res) => {
         foo INTEGER DEFAULT 0,
         geom geometry(Polygon, 4326)
       );
+
+      CREATE TABLE IF NOT EXISTS cesium_line (
+        id SERIAL PRIMARY KEY,
+        usage TEXT,
+        project_id TEXT,
+        geom geometry(LineString, 4326)
+      );
     `);
 
     res.json({
-      message: "Đã tạo bảng cesium_point và cesium_polygon thành công",
+      message: "Database initialized",
     });
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: error.message,
     });
@@ -67,53 +75,42 @@ app.get("/init-db", async (req, res) => {
 // thêm dữ liệu mẫu ban đầu vào database
 app.get("/seed-db", async (req, res) => {
   try {
-    await pool.query(`DELETE FROM cesium_point;`);
-    await pool.query(`DELETE FROM cesium_polygon;`);
+    await pool.query(`DELETE FROM cesium_line;`);
 
     await pool.query(`
-      INSERT INTO cesium_point (id, usage, geom)
-      VALUES
-      (
-        61,
-        'tree',
-        ST_SetSRID(ST_MakePoint(7.599553866763814, 51.93986225429269), 4326)
+  INSERT INTO cesium_line (id, usage, project_id, geom)
+  VALUES
+  (
+    1,
+    'bus',
+    'part_10',
+    ST_SetSRID(
+      ST_GeomFromText(
+        'LINESTRING(
+          7.607662906124652 51.9489624267296,
+          7.607435742657485 51.94891351480369,
+          7.607182490868212 51.948995237404745
+        )'
       ),
-      (
-        62,
-        'tree',
-        ST_SetSRID(ST_MakePoint(7.599934470449944, 51.9399696126641), 4326)
+      4326
+    )
+  ),
+  (
+    2,
+    'car',
+    'part_10',
+    ST_SetSRID(
+      ST_GeomFromText(
+        'LINESTRING(
+          7.606938505781948 51.94899473797764,
+          7.607277456264367 51.94886552154649,
+          7.607644983257613 51.948808013688846
+        )'
       ),
-      (
-        63,
-        'tree',
-        ST_SetSRID(ST_MakePoint(7.600289627906244, 51.94010652021739), 4326)
-      ),
-      (
-        64,
-        'car',
-        ST_SetSRID(ST_MakePoint(7.598866183630354, 51.94032673622099), 4326)
-      ),
-      (
-        65,
-        'car',
-        ST_SetSRID(ST_MakePoint(7.599050883633974, 51.94007101917839), 4326)
-      );
-    `);
-
-    await pool.query(`
-      INSERT INTO cesium_polygon (id, usage, foo, geom)
-      VALUES (
-        23,
-        'Warning',
-        0,
-        ST_SetSRID(
-          ST_GeomFromText(
-            'POLYGON((7.599439006525681 51.94016722856796, 7.599639006525681 51.94016722856796, 7.599639006525681 51.93996722856796, 7.599439006525681 51.93996722856796, 7.599439006525681 51.94016722856796))'
-          ),
-          4326
-        )
-      );
-    `);
+      4326
+    )
+  );
+`);
 
     res.json({
       message: "Đã thêm dữ liệu mẫu vào database",
@@ -183,6 +180,39 @@ app.get("/polygon", async (req, res) => {
     res.json(result.rows[0].geojson);
   } catch (error) {
     console.error(error);
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+});
+
+// get line
+app.get("/line", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT json_build_object(
+        'type', 'FeatureCollection',
+        'features', COALESCE(json_agg(feature), '[]'::json)
+      ) AS geojson
+      FROM (
+        SELECT json_build_object(
+          'id', id,
+          'type', 'Feature',
+          'geometry', ST_AsGeoJSON(geom)::json,
+          'properties', json_build_object(
+            'usage', usage,
+            'project_id', project_id
+          )
+        ) AS feature
+        FROM cesium_line
+        ORDER BY id
+      ) AS features;
+    `);
+
+    res.json(result.rows[0].geojson);
+  } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       error: error.message,
     });
